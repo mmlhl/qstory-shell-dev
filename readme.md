@@ -3,10 +3,7 @@
 这是一个在idea搭建qstory开发环境的项目。
 代码由gork3生成
 ## 功能
-- 将继承 `AbstractQStoryScript` 的 Java 类转换为 `.java` 文件。
-- 自动调整 QStory 特定的回调方法（例如 `onMsg`、菜单回调）。
-- 将 SDK 方法调用替换为 QStory 全局变量（例如 `getMyUin()` -> `MyUin`）。
-- 修正 API 方法名以符合 QStory 规范（例如 `toast` -> `Toast`）。
+- 将继承脚本功能抽象成接口，以便于在idea进行开发，享受代码提示，远离烦人的报错。
 
 ## 前置条件
 - **Java**: 17 或更高版本
