@@ -1,6 +1,10 @@
+import java.util.Date;
+
+import org.example.sdk.Msg;
+
 import java.text.SimpleDateFormat;
 
-import java.util.Date;
+import org.example.sdk.AbstractQStoryScript;
 
 
 void onMsg(Object msg)
@@ -25,10 +29,8 @@ void onMsg(Object msg)
     if (text.equals("回复我")) {
         sendReply(qun, msg, "回复了");
     }
-    Date date = new Date();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     if (text.equals("现在时间")) {
-        sendReply(qun, msg, sdf.format(date));
+        sendReply(qun, msg, TimeUtil.getCurrentDate());
     }
 }
 
@@ -51,10 +53,24 @@ void init()
     }
 }
 
-String getTodayDate()
+String MyQStoryScript_getTodayDate()
 {
     Date date = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    return dateFormat.format(date);
+}
+
+String getCurrentDate()
+{
+    Date date = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    return dateFormat.format(date);
+}
+
+String getCustomFormat(String pattern)
+{
+    Date date = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
     return dateFormat.format(date);
 }
 

@@ -1,4 +1,7 @@
-package org.example;
+package org.example.script;
+
+import org.example.sdk.AbstractQStoryScript;
+import org.example.sdk.Msg;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,10 +30,9 @@ public class MyQStoryScript extends AbstractQStoryScript {
         if (text.equals("回复我")){
             sendReply(qun,msg,"回复了");
         }
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         if (text.equals("现在时间")) {
-            sendReply(qun,msg,sdf.format(date));
+            sendReply(qun,msg,TimeUtil.getCurrentDate());
         }
     }
 
@@ -51,9 +53,4 @@ public class MyQStoryScript extends AbstractQStoryScript {
         }
     }
 
-    private String getTodayDate() {
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return dateFormat.format(date);
-    }
 }

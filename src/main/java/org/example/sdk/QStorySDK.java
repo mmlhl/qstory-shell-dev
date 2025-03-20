@@ -1,4 +1,4 @@
-package org.example;
+package org.example.sdk;
 
 public interface QStorySDK {
     String getMyUin();

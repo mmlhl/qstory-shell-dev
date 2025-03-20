@@ -1,4 +1,4 @@
-package org.example;
+package org.example.sdk;
 
 public abstract class AbstractQStoryScript implements QStorySDK {
     @Override public String getMyUin() { return "MyUin"; }
