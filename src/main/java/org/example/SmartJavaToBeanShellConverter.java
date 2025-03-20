@@ -95,8 +95,13 @@ public class SmartJavaToBeanShellConverter {
             String content = new String(Files.readAllBytes(file.toPath()));
             CompilationUnit cu = StaticJavaParser.parse(content);
 
-            // 收集 imports
-            cu.getImports().forEach(imp -> imports.add(imp.toString()));
+            // 收集 imports，只保留非 SDK 导入
+            cu.getImports().forEach(imp -> {
+                String importStr = imp.toString().trim();
+                if (!importStr.startsWith("import org.example.sdk")) {
+                    imports.add(importStr);
+                }
+            });
 
             // 更新方法调用
             cu.accept(new ModifierVisitor<Void>() {
@@ -140,14 +145,13 @@ public class SmartJavaToBeanShellConverter {
                             String[] lines = trimmedBody.split("\n");
                             StringBuilder normalizedBody = new StringBuilder();
                             for (String line : lines) {
-                                String trimmedLine = line.trim(); // 去除每行首尾空白
+                                String trimmedLine = line.trim();
                                 if (!trimmedLine.isEmpty()) {
                                     normalizedBody.append(trimmedLine).append("\n");
                                 }
                             }
                             scriptBody.append(normalizedBody.toString()).append("\n");
                         } else {
-                            // 普通方法保留签名
                             String methodSignature = adjustMethodSignature(uniqueMethodName, method);
                             scriptBody.append(methodSignature).append("\n")
                                     .append(methodBody).append("\n\n");
@@ -173,10 +177,11 @@ public class SmartJavaToBeanShellConverter {
     private static String adjustMethodSignature(String methodName, MethodDeclaration method) {
         String params = method.getParameters().toString()
                 .replace("[", "").replace("]", "")
-                .replace("org.example.sdk.Msg ", "Object ");
+                .replace("org.example.sdk.Msg", "Object"); // 明确替换 Msg 为 Object
 
-        String signature = method.getType() + " " + methodName + "(" + params + ")";
-        signature = signature.replaceAll("\\b(public|private|protected|static|final)\\b\\s+", "");
+        // 添加 public 修饰符
+        String signature = "public " + method.getType() + " " + methodName + "(" + params + ")";
+        signature = signature.replaceAll("\\b(protected|private|static|final)\\b\\s+", ""); // 移除其他修饰符
         return signature;
     }
 

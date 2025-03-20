@@ -6,7 +6,7 @@ import org.example.sdk.Msg;
 
 public class MyQStoryScript extends AbstractQStoryScript {
     @Override
-    public void onMsg(Msg msg) {
+    public void onMsg(org.example.sdk.Msg msg) {
         String text = msg.MessageContent;
         String qq = msg.UserUin;
         String qun = msg.GroupUin;
@@ -30,7 +30,7 @@ public class MyQStoryScript extends AbstractQStoryScript {
         }
 
         if (text.equals("现在时间")) {
-            sendReply(qun, msg, TimeUtil2.getCurrentDate());
+            sendReply(qun, msg, TimeUtil.getCurrentDate());
         }
     }
 

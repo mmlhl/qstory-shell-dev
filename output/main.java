@@ -1,15 +1,7 @@
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.example.sdk.GlobalInit;
-
-import org.example.sdk.Msg;
-
-import java.text.SimpleDateFormat;
-
-import org.example.sdk.AbstractQStoryScript;
-
-
-void onMsg(Msg msg)
+public void onMsg(Object msg)
 {
     String text = msg.MessageContent;
     String qq = msg.UserUin;
@@ -32,11 +24,11 @@ void onMsg(Msg msg)
         sendReply(qun, msg, "回复了");
     }
     if (text.equals("现在时间")) {
-        sendReply(qun, msg, TimeUtil2_getCurrentDate());
+        sendReply(qun, msg, getCurrentDate());
     }
 }
 
-void 加载提示(String groupUin, String uin, int chatType)
+public void 加载提示(String groupUin, String uin, int chatType)
 {
     if (getString("加载提示", "开关") == null) {
         putString("加载提示", "开关", "关");
@@ -49,7 +41,7 @@ void 加载提示(String groupUin, String uin, int chatType)
 
 addItem("开关加载提示", "加载提示");
 
-void onTroopEvent(String groupUin, String userUin, String opUin, long time)
+public void onTroopEvent(String groupUin, String userUin, String opUin, long time)
 {
 }
 
@@ -57,28 +49,14 @@ if (getString("加载提示", "开关") == null) {
 Toast("发送 \"菜单\" 查看使用说明");
 }
 
-String getCurrentDate()
+public String getCurrentDate()
 {
     Date date = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     return dateFormat.format(date);
 }
 
-String getCustomFormat(String pattern)
-{
-    Date date = new Date();
-    SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
-    return dateFormat.format(date);
-}
-
-String TimeUtil2_getCurrentDate()
-{
-    Date date = new Date();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    return dateFormat.format(date);
-}
-
-String TimeUtil2_getCustomFormat(String pattern)
+public String getCustomFormat(String pattern)
 {
     Date date = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
