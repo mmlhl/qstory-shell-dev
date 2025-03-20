@@ -1,5 +1,7 @@
 import java.util.Date;
 
+import org.example.sdk.GlobalInit;
+
 import org.example.sdk.Msg;
 
 import java.text.SimpleDateFormat;
@@ -7,7 +9,7 @@ import java.text.SimpleDateFormat;
 import org.example.sdk.AbstractQStoryScript;
 
 
-void onMsg(Object msg)
+void onMsg(Msg msg)
 {
     String text = msg.MessageContent;
     String qq = msg.UserUin;
@@ -45,12 +47,14 @@ void 加载提示(String groupUin, String uin, int chatType)
     }
 }
 
-void init()
+addItem("开关加载提示", "加载提示");
+
+void onTroopEvent(String groupUin, String userUin, String opUin, long time)
 {
-    addItem("开关加载提示", "加载提示");
-    if (getString("加载提示", "开关") == null) {
-        Toast("发送 \"菜单\" 查看使用说明");
-    }
+}
+
+if (getString("加载提示", "开关") == null) {
+Toast("发送 \"菜单\" 查看使用说明");
 }
 
 String getCurrentDate()
@@ -75,20 +79,6 @@ String TimeUtil2_getCurrentDate()
 }
 
 String TimeUtil2_getCustomFormat(String pattern)
-{
-    Date date = new Date();
-    SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
-    return dateFormat.format(date);
-}
-
-String TimeUtil3_getCurrentDate()
-{
-    Date date = new Date();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    return dateFormat.format(date);
-}
-
-String TimeUtil3_getCustomFormat(String pattern)
 {
     Date date = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);

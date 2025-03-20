@@ -1,6 +1,7 @@
 package org.example.script;
 
 import org.example.sdk.AbstractQStoryScript;
+import org.example.sdk.GlobalInit;
 import org.example.sdk.Msg;
 
 public class MyQStoryScript extends AbstractQStoryScript {
@@ -42,9 +43,18 @@ public class MyQStoryScript extends AbstractQStoryScript {
             toast("已开启加载提示");
         }
     }
-
-    public void init() {
+    @GlobalInit
+    public  void addItem() {
         addItem("开关加载提示", "加载提示");
+
+    }
+    public void onTroopEvent(String groupUin, String userUin, String opUin, long time){
+
+    }
+    //直接调用的代码用GlobalInit修饰,方法名和大括号将被去除
+
+    @GlobalInit
+    public void 加载(){
         if (getString("加载提示", "开关") == null) {
             toast("发送 \"菜单\" 查看使用说明");
         }
