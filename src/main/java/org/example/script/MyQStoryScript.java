@@ -3,9 +3,6 @@ package org.example.script;
 import org.example.sdk.AbstractQStoryScript;
 import org.example.sdk.Msg;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class MyQStoryScript extends AbstractQStoryScript {
     @Override
     public void onMsg(Msg msg) {
@@ -21,18 +18,18 @@ public class MyQStoryScript extends AbstractQStoryScript {
                 sendMsg("", qq, reply);
             }
         }
-        if (text.equals("你也好")){
+        if (text.equals("你也好")) {
             sendMsg(qun, "", "你也好啊");
         }
         if (text.equals("艾特我") && msg.IsGroup && qq.equals(getMyUin())) {
             sendMsg(qun, "", "[AtQQ=" + qq + "] 嗯呐");
         }
-        if (text.equals("回复我")){
-            sendReply(qun,msg,"回复了");
+        if (text.equals("回复我")) {
+            sendReply(qun, msg, "回复了");
         }
 
         if (text.equals("现在时间")) {
-            sendReply(qun,msg,TimeUtil.getCurrentDate());
+            sendReply(qun, msg, TimeUtil.getCurrentDate());
         }
     }
 
