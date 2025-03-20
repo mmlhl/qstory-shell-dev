@@ -1,6 +1,6 @@
 # QStory 脚本转换器
 ## 个人使用的工具
-这是一个将基于 Java 的 QStory 脚本（使用自定义 SDK 开发）转换为 QStory 插件（适用于 QQNT）支持的 BeanShell 脚本的工具。
+这是一个在idea搭建qstory开发环境的项目。
 代码由gork3生成
 ## 功能
 - 将继承 `AbstractQStoryScript` 的 Java 类转换为 `.java` 文件。
