@@ -2,6 +2,7 @@ package org.example;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -30,7 +31,7 @@ public class SmartJavaToBeanShellConverter {
     }
 
     private static final String SCRIPT_DIR = "src/main/java/org/example/script/";
-    private static final String DEFAULT_OUTPUT = "output/main.java";
+    private static final String DEFAULT_OUTPUT = "output/main.java"; // 修改为 .java
 
     public static void main(String[] args) {
         String outputFile = DEFAULT_OUTPUT;
@@ -57,9 +58,10 @@ public class SmartJavaToBeanShellConverter {
         File scriptDir = new File(SCRIPT_DIR);
         Set<String> imports = new HashSet<>();
         StringBuilder scriptBody = new StringBuilder();
-        Map<String, Set<String>> methodClassMap = new HashMap<>(); // 方法名 -> 类名集合，检测冲突
+        Map<String, Set<String>> methodClassMap = new HashMap<>(); // 方法名 -> 类名集合
+        Map<String, String> methodNameMapping = new HashMap<>(); // 原始方法名 -> 唯一方法名
 
-        // 第一步：收集所有类名和方法名
+        // 第一步：收集所有类名和方法名，确定唯一方法名
         for (File file : scriptDir.listFiles((dir, name) -> name.endsWith(".java"))) {
             String content = new String(Files.readAllBytes(file.toPath()));
             CompilationUnit cu = StaticJavaParser.parse(content);
@@ -71,6 +73,12 @@ public class SmartJavaToBeanShellConverter {
                     for (MethodDeclaration method : n.getMethods()) {
                         String methodName = method.getNameAsString();
                         methodClassMap.computeIfAbsent(methodName, k -> new HashSet<>()).add(className);
+
+                        // 冲突时，所有方法都加前缀；无冲突或特殊方法保留原名
+                        String uniqueMethodName = (methodClassMap.get(methodName).size() > 1 && !isSpecialMethod(methodName))
+                                ? className + "_" + methodName
+                                : methodName;
+                        methodNameMapping.put(className + "." + methodName, uniqueMethodName);
                     }
                     super.visit(n, arg);
                 }
@@ -85,25 +93,25 @@ public class SmartJavaToBeanShellConverter {
         }
 
         // 第二步：处理每个文件
-        for (File file : scriptDir.listFiles((dir, name) -> name.endsWith(".java"))) {
+        for (File file : Objects.requireNonNull(scriptDir.listFiles((dir, name) -> name.endsWith(".java")))) {
             String content = new String(Files.readAllBytes(file.toPath()));
             CompilationUnit cu = StaticJavaParser.parse(content);
 
             // 收集 imports
             cu.getImports().forEach(imp -> imports.add(imp.toString()));
 
-            // 使用 AST 修改器移除静态方法调用中的类名
+            // 使用 AST 修改器更新方法调用
             cu.accept(new ModifierVisitor<Void>() {
                 @Override
                 public MethodCallExpr visit(MethodCallExpr n, Void arg) {
                     if (n.getScope().isPresent()) {
                         String scope = n.getScope().get().toString();
                         String methodName = n.getNameAsString();
-                        if (methodClassMap.containsKey(methodName) && methodClassMap.get(methodName).contains(scope)) {
-                            // 如果无冲突，移除类名；有冲突时保留，后续加前缀
-                            if (methodClassMap.get(methodName).size() == 1) {
-                                n.setScope(null);
-                            }
+                        String fullMethodName = scope + "." + methodName;
+                        if (methodNameMapping.containsKey(fullMethodName)) {
+                            String newMethodName = methodNameMapping.get(fullMethodName);
+                            n.setScope(null); // 移除类名
+                            n.setName(newMethodName); // 更新为唯一方法名
                         }
                     }
                     super.visit(n, arg);
@@ -118,13 +126,10 @@ public class SmartJavaToBeanShellConverter {
                     String className = n.getNameAsString();
                     for (MethodDeclaration method : n.getMethods()) {
                         String methodName = method.getNameAsString();
-                        // 如果有冲突，使用类名_方法名；无冲突或特殊方法，使用原名
-                        String uniqueMethodName = (methodClassMap.get(methodName).size() > 1 && !isSpecialMethod(methodName))
-                                ? className + "_" + methodName
-                                : methodName;
+                        String uniqueMethodName = methodNameMapping.getOrDefault(className + "." + methodName, methodName);
 
                         String methodSignature = adjustMethodSignature(uniqueMethodName, method);
-                        String methodBody = method.getBody().map(body -> body.toString()).orElse("");
+                        String methodBody = method.getBody().map(Node::toString).orElse("");
                         methodBody = replaceGlobalVariables(methodBody);
                         methodBody = fixApiMethodNames(methodBody);
                         scriptBody.append(methodSignature).append("\n")
@@ -156,13 +161,12 @@ public class SmartJavaToBeanShellConverter {
         String signature = method.getType() + " " + methodName + "(" + params + ")";
         signature = signature.replaceAll("\\b(public|private|protected|static|final)\\b\\s+", "");
 
-        if (name.equals("onMsg")) {
-            signature = "void onMsg(Object msg)";
-        } else if (name.equals("加载提示")) {
-            signature = "void 加载提示(String groupUin, String uin, int chatType)";
-        } else if (name.equals("init")) {
-            signature = "void init()";
-        }
+        signature = switch (name) {
+            case "onMsg" -> "void onMsg(Object msg)";
+            case "加载提示" -> "void 加载提示(String groupUin, String uin, int chatType)";
+            case "init" -> "void init()";
+            default -> signature;
+        };
 
         return signature;
     }

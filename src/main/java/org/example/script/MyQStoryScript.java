@@ -29,7 +29,7 @@ public class MyQStoryScript extends AbstractQStoryScript {
         }
 
         if (text.equals("现在时间")) {
-            sendReply(qun, msg, TimeUtil.getCurrentDate());
+            sendReply(qun, msg, TimeUtil2.getCurrentDate());
         }
     }
 

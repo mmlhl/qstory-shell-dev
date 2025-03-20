@@ -30,7 +30,7 @@ void onMsg(Object msg)
         sendReply(qun, msg, "回复了");
     }
     if (text.equals("现在时间")) {
-        sendReply(qun, msg, getCurrentDate());
+        sendReply(qun, msg, TimeUtil2_getCurrentDate());
     }
 }
 
@@ -61,6 +61,34 @@ String getCurrentDate()
 }
 
 String getCustomFormat(String pattern)
+{
+    Date date = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+    return dateFormat.format(date);
+}
+
+String TimeUtil2_getCurrentDate()
+{
+    Date date = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    return dateFormat.format(date);
+}
+
+String TimeUtil2_getCustomFormat(String pattern)
+{
+    Date date = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+    return dateFormat.format(date);
+}
+
+String TimeUtil3_getCurrentDate()
+{
+    Date date = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    return dateFormat.format(date);
+}
+
+String TimeUtil3_getCustomFormat(String pattern)
 {
     Date date = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
