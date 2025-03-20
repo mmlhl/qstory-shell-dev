@@ -30,7 +30,7 @@ void onMsg(Object msg)
         sendReply(qun, msg, "回复了");
     }
     if (text.equals("现在时间")) {
-        sendReply(qun, msg, TimeUtil.getCurrentDate());
+        sendReply(qun, msg, getCurrentDate());
     }
 }
 
@@ -51,13 +51,6 @@ void init()
     if (getString("加载提示", "开关") == null) {
         Toast("发送 \"菜单\" 查看使用说明");
     }
-}
-
-String MyQStoryScript_getTodayDate()
-{
-    Date date = new Date();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    return dateFormat.format(date);
 }
 
 String getCurrentDate()
