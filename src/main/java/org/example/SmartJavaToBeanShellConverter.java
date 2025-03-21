@@ -13,11 +13,9 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class SmartJavaToBeanShellConverter {
@@ -38,6 +36,7 @@ public class SmartJavaToBeanShellConverter {
         GLOBAL_VAR_MAPPING.put("getAppPath", "AppPath");
         GLOBAL_VAR_MAPPING.put("getLoader", "loader");
         GLOBAL_VAR_MAPPING.put("getPluginID", "PluginID");
+        GLOBAL_VAR_MAPPING.put("GetActivity", "Activity"); // 新增
     }
 
     private static final String SCRIPT_DIR = "src/main/java/org/example/script/";
@@ -71,7 +70,6 @@ public class SmartJavaToBeanShellConverter {
         Map<String, Set<String>> methodClassMap = new HashMap<>();
         Map<String, String> methodNameMapping = new HashMap<>();
 
-        // 第一步：收集方法名和类映射
         for (File file : Objects.requireNonNull(scriptDir.listFiles((dir, name) -> name.endsWith(".java")))) {
             String content = new String(Files.readAllBytes(file.toPath()));
             CompilationUnit cu = StaticJavaParser.parse(content);
@@ -94,19 +92,16 @@ public class SmartJavaToBeanShellConverter {
             }, null);
         }
 
-        // 打印方法名冲突警告
         for (Map.Entry<String, Set<String>> entry : methodClassMap.entrySet()) {
             if (entry.getValue().size() > 1) {
                 System.err.println("Warning: Method name conflict detected for '" + entry.getKey() + "' in classes: " + entry.getValue());
             }
         }
 
-        // 第二步：处理脚本并收集导入
         for (File file : Objects.requireNonNull(scriptDir.listFiles((dir, name) -> name.endsWith(".java")))) {
             String content = new String(Files.readAllBytes(file.toPath()));
             CompilationUnit cu = StaticJavaParser.parse(content);
 
-            // 收集导入，但稍后过滤
             cu.getImports().forEach(imp -> imports.add(imp.toString().trim()));
 
             // 移除泛型
@@ -125,11 +120,12 @@ public class SmartJavaToBeanShellConverter {
             cu.accept(new ModifierVisitor<Void>() {
                 @Override
                 public MethodCallExpr visit(MethodCallExpr n, Void arg) {
+                    // 只替换无作用域的全局方法调用
                     if (!n.getScope().isPresent() && GLOBAL_VAR_MAPPING.containsKey(n.getNameAsString())) {
                         n.replace(new NameExpr(GLOBAL_VAR_MAPPING.get(n.getNameAsString())));
                     }
                     super.visit(n, arg);
-                    return n;
+                    return n; // 返回原始节点
                 }
             }, null);
 
@@ -152,7 +148,6 @@ public class SmartJavaToBeanShellConverter {
                 }
             }, null);
 
-            // 提取方法并生成脚本
             cu.accept(new VoidVisitorAdapter<Void>() {
                 @Override
                 public void visit(ClassOrInterfaceDeclaration n, Void arg) {
@@ -189,10 +184,9 @@ public class SmartJavaToBeanShellConverter {
             }, null);
         }
 
-        // 第三步：写入文件，过滤 org.example.sdk 的导入
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             for (String imp : imports) {
-                if (!imp.startsWith("import org.example.sdk")) { // 过滤 org.example.sdk 的导入
+                if (!imp.contains("org.example.sdk")) {
                     writer.write(imp + "\n");
                 }
             }

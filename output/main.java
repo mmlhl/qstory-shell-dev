@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import java.util.Date;
 
-public void onMsg(org.example.sdk.Object msg)
+public void onMsg(Object msg)
 {
     String text = msg.MessageContent;
     String qq = msg.UserUin;

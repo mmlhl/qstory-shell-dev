@@ -6,10 +6,12 @@ import org.example.sdk.AbstractQStoryScript;
 import org.example.sdk.GlobalInit;
 import android.widget.TextView;
 import org.example.sdk.GroupMemberInfo;
+import org.example.sdk.Msg;
+
 import java.util.ArrayList;
 public class MyQStoryScript extends AbstractQStoryScript {
     @Override
-    public void onMsg(org.example.sdk.Msg msg) {
+    public void onMsg(Msg msg) {
         String text = msg.MessageContent;
         String qq = msg.UserUin;
         String qun = msg.GroupUin;
