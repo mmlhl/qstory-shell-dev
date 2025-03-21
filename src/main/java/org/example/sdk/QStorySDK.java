@@ -1,6 +1,7 @@
 package org.example.sdk;
 
 import android.content.Context;
+import java.util.ArrayList;
 
 public interface QStorySDK {
     String getMyUin();
@@ -44,4 +45,8 @@ public interface QStorySDK {
     void toast(Object message);
     String addItem(String name, String callbackName);
     void addTemporaryItem(String name, String callbackName);
+
+    // 添加缺失的接口方法
+    ArrayList<GroupInfo> getGroupList();
+    ArrayList<GroupMemberInfo> getGroupMemberList(String groupUin);
 }

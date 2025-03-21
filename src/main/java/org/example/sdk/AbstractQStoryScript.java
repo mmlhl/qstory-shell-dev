@@ -1,6 +1,7 @@
 package org.example.sdk;
 
 import android.content.Context;
+import java.util.ArrayList;
 
 public abstract class AbstractQStoryScript implements QStorySDK {
     @Override public String getMyUin() { return "MyUin"; }
@@ -44,4 +45,8 @@ public abstract class AbstractQStoryScript implements QStorySDK {
     @Override public native void toast(Object message);
     @Override public native String addItem(String name, String callbackName);
     @Override public native void addTemporaryItem(String name, String callbackName);
+
+    // 实现缺失的接口方法（占位）
+    @Override public ArrayList<GroupInfo> getGroupList() { return null; }
+    @Override public ArrayList<GroupMemberInfo> getGroupMemberList(String groupUin) { return null; }
 }
