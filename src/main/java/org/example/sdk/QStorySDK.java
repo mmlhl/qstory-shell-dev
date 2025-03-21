@@ -1,5 +1,6 @@
 package org.example.sdk;
 
+import android.app.Activity;
 import android.content.Context;
 import java.util.ArrayList;
 
@@ -46,7 +47,11 @@ public interface QStorySDK {
     String addItem(String name, String callbackName);
     void addTemporaryItem(String name, String callbackName);
 
-    // 添加缺失的接口方法
+    // 已添加的群组方法
     ArrayList<GroupInfo> getGroupList();
     ArrayList<GroupMemberInfo> getGroupMemberList(String groupUin);
+
+    // 新增方法
+    Activity GetActivity(); // 注意文档中大写 G，可能需与实现一致
+    void load(String Path);
 }

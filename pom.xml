@@ -11,12 +11,13 @@
       <artifactId>javaparser-symbol-solver-core</artifactId>
       <version>3.25.8</version>
     </dependency>
-    <!-- Android SDK（仅编译时使用） -->
+    <!-- Android SDK（使用本地 android.jar） -->
     <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
-      <version>4.1.1.4</version>
-      <scope>provided</scope> <!-- 不打包到 JAR -->
+      <version>34</version>
+      <scope>system</scope> <!-- 改为 system scope -->
+      <systemPath>${env.ANDROID_HOME}/platforms/android-34/android.jar</systemPath>
     </dependency>
   </dependencies>
 

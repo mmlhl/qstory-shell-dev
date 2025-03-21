@@ -1,12 +1,14 @@
 import android.widget.TextView;
+import android.app.AlertDialog;
 import org.example.sdk.AbstractQStoryScript;
 import org.example.sdk.GroupMemberInfo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import android.app.Activity;
 import org.example.sdk.GlobalInit;
 import java.util.Date;
 
-public void onMsg(org.example.sdk.Msg msg)
+public void onMsg(org.example.sdk.Object msg)
 {
     String text = msg.MessageContent;
     String qq = msg.UserUin;
@@ -23,11 +25,27 @@ public void onMsg(org.example.sdk.Msg msg)
     if (text.equals("测试") && msg.UserUin.equals(MyUin) && msg.IsGroup) {
         ArrayList l = getGroupMemberList(qun);
         Toast("" + l.size());
-        TextView textView = new TextView(getContext());
+        TextView textView = new TextView(context);
     }
     if (text.equals("现在时间")) {
         sendReply(qun, msg, getCustomFormat("yyyy-MM-dd HH:mm:ss"));
     }
+}
+
+public void dialogTest(String groupUin, String uin, int chatType)
+{
+    Activity activity = GetActivity();
+    // 防止 activity 为 null
+    if (activity == null)
+        return;
+    TextView textView = new TextView(activity);
+    textView.setText("你好");
+    // 使用 Material Design 主题
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_Material_Dialog_Alert);
+    AlertDialog alertDialog = builder.create();
+    alertDialog.setView(textView);
+    alertDialog.setCancelable(true);
+    alertDialog.show();
 }
 
 public void 加载提示(String groupUin, String uin, int chatType)
@@ -42,6 +60,7 @@ public void 加载提示(String groupUin, String uin, int chatType)
 }
 
 addItem("开关加载提示", "加载提示");
+addItem("弹窗测试", "dialogTest");
 
 public void onTroopEvent(String groupUin, String userUin, String opUin, long time)
 {
