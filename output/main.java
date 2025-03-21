@@ -1,3 +1,4 @@
+import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -23,8 +24,11 @@ public void onMsg(Object msg)
     if (text.equals("回复我")) {
         sendReply(qun, msg, "回复了");
     }
+    if (text.equals("测试")) {
+        TextView textView = new TextView(context);
+    }
     if (text.equals("现在时间")) {
-        sendReply(qun, msg, getCurrentDate());
+        sendReply(qun, msg, getCustomFormat("yyyy-MM-dd HH:mm:ss"));
     }
 }
 

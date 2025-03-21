@@ -27,6 +27,10 @@ public class SmartJavaToBeanShellConverter {
     private static final Map<String, String> GLOBAL_VAR_MAPPING = new HashMap<>();
     static {
         GLOBAL_VAR_MAPPING.put("getMyUin()", "MyUin");
+        GLOBAL_VAR_MAPPING.put("getContext()", "context");
+        GLOBAL_VAR_MAPPING.put("getAppPath()", "AppPath");
+        GLOBAL_VAR_MAPPING.put("getLoader()", "loader");
+        GLOBAL_VAR_MAPPING.put("getPluginID()", "PluginID");
     }
 
     private static final String SCRIPT_DIR = "src/main/java/org/example/script/";
