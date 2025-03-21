@@ -2,8 +2,7 @@ package org.example.script;
 
 import org.example.sdk.AbstractQStoryScript;
 import org.example.sdk.GlobalInit;
-import org.example.sdk.Msg;
-
+import android.widget.TextView;
 public class MyQStoryScript extends AbstractQStoryScript {
     @Override
     public void onMsg(org.example.sdk.Msg msg) {
@@ -28,9 +27,11 @@ public class MyQStoryScript extends AbstractQStoryScript {
         if (text.equals("回复我")) {
             sendReply(qun, msg, "回复了");
         }
-
+        if (text.equals("测试")) {
+            TextView textView = new TextView(getContext() );
+        }
         if (text.equals("现在时间")) {
-            sendReply(qun, msg, TimeUtil.getCurrentDate());
+            sendReply(qun, msg, TimeUtil.getCustomFormat("yyyy-MM-dd HH:mm:ss"));
         }
     }
 

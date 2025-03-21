@@ -1,8 +1,10 @@
 package org.example.sdk;
 
+import android.content.Context;
+
 public interface QStorySDK {
     String getMyUin();
-    String getContext();
+    Context getContext();
     String getAppPath();
     ClassLoader getLoader();
     String getPluginID();

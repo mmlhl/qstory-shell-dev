@@ -1,8 +1,10 @@
 package org.example.sdk;
 
+import android.content.Context;
+
 public abstract class AbstractQStoryScript implements QStorySDK {
     @Override public String getMyUin() { return "MyUin"; }
-    @Override public String getContext() { return "context"; }
+    @Override public Context getContext() { return null; }
     @Override public String getAppPath() { return "AppPath"; }
     @Override public ClassLoader getLoader() { return null; }
     @Override public String getPluginID() { return "PluginID"; }
