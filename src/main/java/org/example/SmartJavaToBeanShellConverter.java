@@ -2,9 +2,12 @@ package org.example;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
@@ -27,10 +30,6 @@ public class SmartJavaToBeanShellConverter {
     private static final Map<String, String> GLOBAL_VAR_MAPPING = new HashMap<>();
     static {
         GLOBAL_VAR_MAPPING.put("getMyUin()", "MyUin");
-        GLOBAL_VAR_MAPPING.put("getContext()", "context");
-        GLOBAL_VAR_MAPPING.put("getAppPath()", "AppPath");
-        GLOBAL_VAR_MAPPING.put("getLoader()", "loader");
-        GLOBAL_VAR_MAPPING.put("getPluginID()", "PluginID");
     }
 
     private static final String SCRIPT_DIR = "src/main/java/org/example/script/";
@@ -87,7 +86,6 @@ public class SmartJavaToBeanShellConverter {
             }, null);
         }
 
-        // 检查冲突并打印警告
         for (Map.Entry<String, Set<String>> entry : methodClassMap.entrySet()) {
             if (entry.getValue().size() > 1) {
                 System.err.println("Warning: Method name conflict detected for '" + entry.getKey() + "' in classes: " + entry.getValue());
@@ -95,17 +93,25 @@ public class SmartJavaToBeanShellConverter {
         }
 
         // 第二步：处理每个文件
-        for (File file : scriptDir.listFiles((dir, name) -> name.endsWith(".java"))) {
+        for (File file : Objects.requireNonNull(scriptDir.listFiles((dir, name) -> name.endsWith(".java")))) {
             String content = new String(Files.readAllBytes(file.toPath()));
             CompilationUnit cu = StaticJavaParser.parse(content);
 
-            // 收集 imports，只保留非 SDK 导入
-            cu.getImports().forEach(imp -> {
-                String importStr = imp.toString().trim();
-                if (!importStr.startsWith("import org.example.sdk")) {
-                    imports.add(importStr);
+            // 收集所有导入
+            cu.getImports().forEach(imp -> imports.add(imp.toString().trim()));
+
+            // 移除泛型
+            cu.accept(new ModifierVisitor<Void>() {
+                @Override
+                public Type visit(ClassOrInterfaceType n, Void arg) {
+                    // 移除泛型参数，只保留基本类型（如 ArrayList）
+                    if (n.getTypeArguments().isPresent()) {
+                        n.setTypeArguments((NodeList<Type>) null);
+                    }
+                    super.visit(n, arg);
+                    return n;
                 }
-            });
+            }, null);
 
             // 更新方法调用
             cu.accept(new ModifierVisitor<Void>() {
@@ -135,7 +141,6 @@ public class SmartJavaToBeanShellConverter {
                         String methodName = method.getNameAsString();
                         String uniqueMethodName = methodNameMapping.getOrDefault(className + "." + methodName, methodName);
 
-                        // 检查是否标记为 @GlobalInit
                         boolean isGlobalInit = method.getAnnotations().stream()
                                 .anyMatch(a -> a.getNameAsString().equals("GlobalInit"));
 
@@ -144,7 +149,6 @@ public class SmartJavaToBeanShellConverter {
                         methodBody = fixApiMethodNames(methodBody);
 
                         if (isGlobalInit) {
-                            // 移除大括号并规范化缩进
                             String trimmedBody = methodBody.substring(1, methodBody.length() - 1).trim();
                             String[] lines = trimmedBody.split("\n");
                             StringBuilder normalizedBody = new StringBuilder();
@@ -180,12 +184,9 @@ public class SmartJavaToBeanShellConverter {
 
     private static String adjustMethodSignature(String methodName, MethodDeclaration method) {
         String params = method.getParameters().toString()
-                .replace("[", "").replace("]", "")
-                .replace("org.example.sdk.Msg", "Object"); // 明确替换 Msg 为 Object
-
-        // 添加 public 修饰符
+                .replace("[", "").replace("]", "");
         String signature = "public " + method.getType() + " " + methodName + "(" + params + ")";
-        signature = signature.replaceAll("\\b(protected|private|static|final)\\b\\s+", ""); // 移除其他修饰符
+        signature = signature.replaceAll("\\b(protected|private|static|final)\\b\\s+", "");
         return signature;
     }
 

@@ -1,20 +1,16 @@
 import android.widget.TextView;
+import org.example.sdk.AbstractQStoryScript;
+import org.example.sdk.GroupMemberInfo;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import org.example.sdk.GlobalInit;
 import java.util.Date;
 
-public void onMsg(Object msg)
+public void onMsg(org.example.sdk.Msg msg)
 {
     String text = msg.MessageContent;
     String qq = msg.UserUin;
     String qun = msg.GroupUin;
-    if (text.equals("菜单") && qq.equals(MyUin)) {
-        String reply = "TG频道：https://t.me/QStoryPlugin\n交流群:979938489\n---------\n这是菜单 你可以发送下面的指令来进行测试  \n艾特我\n回复我\n私聊我";
-        if (msg.IsGroup) {
-            sendMsg(qun, "", reply);
-        } else {
-            sendMsg("", qq, reply);
-        }
-    }
     if (text.equals("你也好")) {
         sendMsg(qun, "", "你也好啊");
     }
@@ -24,8 +20,10 @@ public void onMsg(Object msg)
     if (text.equals("回复我")) {
         sendReply(qun, msg, "回复了");
     }
-    if (text.equals("测试")) {
-        TextView textView = new TextView(context);
+    if (text.equals("测试") && msg.UserUin.equals(MyUin) && msg.IsGroup) {
+        ArrayList l = getGroupMemberList(qun);
+        Toast("" + l.size());
+        TextView textView = new TextView(getContext());
     }
     if (text.equals("现在时间")) {
         sendReply(qun, msg, getCustomFormat("yyyy-MM-dd HH:mm:ss"));

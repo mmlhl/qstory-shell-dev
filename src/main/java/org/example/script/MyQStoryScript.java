@@ -3,6 +3,10 @@ package org.example.script;
 import org.example.sdk.AbstractQStoryScript;
 import org.example.sdk.GlobalInit;
 import android.widget.TextView;
+import org.example.sdk.GroupMemberInfo;
+
+import java.util.ArrayList;
+
 public class MyQStoryScript extends AbstractQStoryScript {
     @Override
     public void onMsg(org.example.sdk.Msg msg) {
@@ -10,14 +14,7 @@ public class MyQStoryScript extends AbstractQStoryScript {
         String qq = msg.UserUin;
         String qun = msg.GroupUin;
 
-        if (text.equals("菜单") && qq.equals(getMyUin())) {
-            String reply = "TG频道：https://t.me/QStoryPlugin\n交流群:979938489\n---------\n这是菜单 你可以发送下面的指令来进行测试  \n艾特我\n回复我\n私聊我";
-            if (msg.IsGroup) {
-                sendMsg(qun, "", reply);
-            } else {
-                sendMsg("", qq, reply);
-            }
-        }
+
         if (text.equals("你也好")) {
             sendMsg(qun, "", "你也好啊");
         }
@@ -27,7 +24,9 @@ public class MyQStoryScript extends AbstractQStoryScript {
         if (text.equals("回复我")) {
             sendReply(qun, msg, "回复了");
         }
-        if (text.equals("测试")) {
+        if (text.equals("测试")&&msg.UserUin.equals(getMyUin())&&msg.IsGroup) {
+            ArrayList<GroupMemberInfo> l=getGroupMemberList(qun);
+            toast(""+l.size());
             TextView textView = new TextView(getContext() );
         }
         if (text.equals("现在时间")) {
