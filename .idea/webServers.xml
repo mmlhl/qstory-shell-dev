@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="a8dd9892-77bb-443e-8de2-b1b38d578427" name="mm" url="http://192.168.1.4">
-        <fileTransfer anonymous="true" host="192.168.1.4" port="2121">
+        <fileTransfer anonymous="true" host="192.168.1.4" port="2123">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

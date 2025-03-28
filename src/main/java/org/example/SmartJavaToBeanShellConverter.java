@@ -7,7 +7,6 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
@@ -15,7 +14,6 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class SmartJavaToBeanShellConverter {
@@ -36,7 +34,6 @@ public class SmartJavaToBeanShellConverter {
         GLOBAL_VAR_MAPPING.put("getAppPath", "AppPath");
         GLOBAL_VAR_MAPPING.put("getLoader", "loader");
         GLOBAL_VAR_MAPPING.put("getPluginID", "PluginID");
-        GLOBAL_VAR_MAPPING.put("GetActivity", "Activity"); // 新增
     }
 
     private static final String SCRIPT_DIR = "src/main/java/org/example/script/";
@@ -81,7 +78,6 @@ public class SmartJavaToBeanShellConverter {
                     for (MethodDeclaration method : n.getMethods()) {
                         String methodName = method.getNameAsString();
                         methodClassMap.computeIfAbsent(methodName, k -> new HashSet<>()).add(className);
-
                         String uniqueMethodName = (methodClassMap.get(methodName).size() > 1)
                                 ? className + "_" + methodName
                                 : methodName;
@@ -104,7 +100,6 @@ public class SmartJavaToBeanShellConverter {
 
             cu.getImports().forEach(imp -> imports.add(imp.toString().trim()));
 
-            // 移除泛型
             cu.accept(new ModifierVisitor<Void>() {
                 @Override
                 public Type visit(ClassOrInterfaceType n, Void arg) {
@@ -116,20 +111,6 @@ public class SmartJavaToBeanShellConverter {
                 }
             }, null);
 
-            // 替换全局变量方法调用
-            cu.accept(new ModifierVisitor<Void>() {
-                @Override
-                public MethodCallExpr visit(MethodCallExpr n, Void arg) {
-                    // 只替换无作用域的全局方法调用
-                    if (!n.getScope().isPresent() && GLOBAL_VAR_MAPPING.containsKey(n.getNameAsString())) {
-                        n.replace(new NameExpr(GLOBAL_VAR_MAPPING.get(n.getNameAsString())));
-                    }
-                    super.visit(n, arg);
-                    return n; // 返回原始节点
-                }
-            }, null);
-
-            // 更新方法调用（处理作用域冲突）
             cu.accept(new ModifierVisitor<Void>() {
                 @Override
                 public MethodCallExpr visit(MethodCallExpr n, Void arg) {
@@ -160,6 +141,10 @@ public class SmartJavaToBeanShellConverter {
                                 .anyMatch(a -> a.getNameAsString().equals("GlobalInit"));
 
                         String methodBody = method.getBody().map(Node::toString).orElse("");
+                        // 替换全局变量
+                        for (Map.Entry<String, String> entry : GLOBAL_VAR_MAPPING.entrySet()) {
+                            methodBody = methodBody.replaceAll("\\b" + entry.getKey() + "\\(\\)", entry.getValue());
+                        }
                         methodBody = fixApiMethodNames(methodBody);
 
                         if (isGlobalInit) {
